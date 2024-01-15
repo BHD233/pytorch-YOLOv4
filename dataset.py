@@ -109,7 +109,6 @@ def image_data_augmentation(mat, w, h, pleft, ptop, swidth, sheight, flip, dhue,
         src_rect = [pleft, ptop, swidth + pleft, sheight + ptop]  # x1,y1,x2,y2
         img_rect = [0, 0, ow, oh]
         new_src_rect = rect_intersection(src_rect, img_rect)  # 交集
-
         dst_rect = [max(0, -pleft), max(0, -ptop), max(0, -pleft) + new_src_rect[2] - new_src_rect[0],
                     max(0, -ptop) + new_src_rect[3] - new_src_rect[1]]
         # cv2.Mat sized
@@ -137,6 +136,7 @@ def image_data_augmentation(mat, w, h, pleft, ptop, swidth, sheight, flip, dhue,
             if img.shape[2] >= 3:
                 hsv_src = cv2.cvtColor(sized.astype(np.float32), cv2.COLOR_RGB2HSV)  # RGB to HSV
                 hsv = cv2.split(hsv_src)
+                hsv = np.array(hsv)
                 hsv[1] *= dsat
                 hsv[2] *= dexp
                 hsv[0] += 179 * dhue
@@ -173,6 +173,7 @@ def image_data_augmentation(mat, w, h, pleft, ptop, swidth, sheight, flip, dhue,
             gaussian_noise = max(gaussian_noise, 0)
             cv2.randn(noise, 0, gaussian_noise)  # mean and variance
             sized = sized + noise
+        
     except:
         print("OpenCV can't augment image: " + str(w) + " x " + str(h))
         sized = mat
@@ -282,7 +283,6 @@ class Yolo_dataset(Dataset):
 
         out_img = np.zeros([self.cfg.h, self.cfg.w, 3])
         out_bboxes = []
-
         for i in range(use_mixup + 1):
             if i != 0:
                 img_path = random.choice(list(self.truth.keys()))
@@ -375,9 +375,12 @@ class Yolo_dataset(Dataset):
                                                        cut_y, i, left_shift, right_shift, top_shift, bot_shift)
                 out_bboxes.append(out_bbox)
                 # print(img_path)
+
+        
         if use_mixup == 3:
             out_bboxes = np.concatenate(out_bboxes, axis=0)
         out_bboxes1 = np.zeros([self.cfg.boxes, 5])
+
         try:
             out_bboxes1[:min(out_bboxes.shape[0], self.cfg.boxes)] = out_bboxes[:min(out_bboxes.shape[0], self.cfg.boxes)]
         except AttributeError:
