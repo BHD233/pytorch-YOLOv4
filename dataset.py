@@ -359,6 +359,7 @@ class Yolo_dataset(Dataset):
                 elif i == 1:
                     out_img = cv2.addWeighted(ai, 0.5, old_img, 0.5)
                     out_bboxes = np.concatenate([old_truth, truth], axis=0)
+                
             elif use_mixup == 3:
                 if flip:
                     tmp = pleft
@@ -374,6 +375,7 @@ class Yolo_dataset(Dataset):
                 out_img, out_bbox = blend_truth_mosaic(out_img, ai, truth.copy(), self.cfg.w, self.cfg.h, cut_x,
                                                        cut_y, i, left_shift, right_shift, top_shift, bot_shift)
                 out_bboxes.append(out_bbox)
+
                 # print(img_path)
 
         
@@ -384,8 +386,11 @@ class Yolo_dataset(Dataset):
         try:
             out_bboxes1[:min(out_bboxes.shape[0], self.cfg.boxes)] = out_bboxes[:min(out_bboxes.shape[0], self.cfg.boxes)]
         except AttributeError:
-            out_bboxes = np.array(out_bboxes.astype(object), dtype=np.float32)
-            out_bboxes1[:min(out_bboxes.shape[0], self.cfg.boxes)] = out_bboxes[:min(out_bboxes.shape[0], self.cfg.boxes)]
+            out_bboxes = np.array(np.array(out_bboxes).astype(object), dtype=np.float32)
+            try:
+                out_bboxes1[:min(out_bboxes.shape[0], self.cfg.boxes)] = out_bboxes[:min(out_bboxes.shape[0], self.cfg.boxes)]
+            except:
+                pass
         return out_img, out_bboxes1
 
 
