@@ -16,6 +16,7 @@ import os, sys, math
 import argparse
 from collections import deque
 import datetime
+import wandb
 
 import cv2
 from tqdm import tqdm
@@ -560,14 +561,22 @@ def train(
                         )
                     )
 
+                loss_param = {
+                    "train/Loss": loss.item(),
+                    "train/loss_xy": loss_xy.item(),
+                    "train/loss_wh": loss_wh.item(),
+                    "train/loss_obj": loss_obj.item(),
+                    "train/loss_cls": loss_cls.item(),
+                    "train/loss_l2": loss_l2.item(),
+                    "lr": scheduler.get_lr()[0] * config.batch,
+                }
+                wandb.log(loss_param)
                 pbar.update(images.shape[0])
 
             if cfg.use_darknet_cfg:
-                eval_model = Darknet(cfg.cfgfile, inference=True)
+                eval_model = Darknet(cfg.cfgfile)
             else:
-                eval_model = Yolov4(
-                    cfg.pretrained, n_classes=cfg.classes, inference=True
-                )
+                eval_model = Yolov4(cfg.pretrained, n_classes=cfg.classes)
             # eval_model = Yolov4(yolov4conv137weight=None, n_classes=config.classes, inference=True)
             if torch.cuda.device_count() > 1:
                 eval_model.load_state_dict(model.module.state_dict())
@@ -590,6 +599,23 @@ def train(
             writer.add_scalar("train/AR_small", stats[9], global_step)
             writer.add_scalar("train/AR_medium", stats[10], global_step)
             writer.add_scalar("train/AR_large", stats[11], global_step)
+
+            # Log wandb
+            log_parm = {
+                "train/AP": stats[0],
+                "train/AP50": stats[1],
+                "train/AP75": stats[2],
+                "train/AP_small": stats[3],
+                "train/AP_medium": stats[4],
+                "train/AP_large": stats[5],
+                "train/AR1": stats[6],
+                "train/AR10": stats[7],
+                "train/AR100": stats[8],
+                "train/AR_small": stats[9],
+                "train/AR_medium": stats[10],
+                "train/AR_large": stats[11],
+            }
+            wandb.log(log_parm)
 
             if save_cp:
                 try:
