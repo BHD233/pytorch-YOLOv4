@@ -570,7 +570,7 @@ def train(
                     "train/loss_l2": loss_l2.item(),
                     "lr": scheduler.get_lr()[0] * config.batch,
                 }
-                wandb.log(loss_param)
+                # wandb.log(loss_param)
                 pbar.update(images.shape[0])
 
             if cfg.use_darknet_cfg:
@@ -600,7 +600,7 @@ def train(
             writer.add_scalar("train/AR_medium", stats[10], global_step)
             writer.add_scalar("train/AR_large", stats[11], global_step)
 
-            # Log wandb
+            # Log #wandb
             log_parm = {
                 "train/AP": stats[0],
                 "train/AP50": stats[1],
@@ -615,7 +615,7 @@ def train(
                 "train/AR_medium": stats[10],
                 "train/AR_large": stats[11],
             }
-            wandb.log(log_parm)
+            # wandb.log(log_parm)
 
             if save_cp:
                 try:

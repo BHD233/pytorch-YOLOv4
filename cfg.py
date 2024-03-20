@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 '''
 @Time          : 2020/05/06 21:05
@@ -45,22 +46,15 @@ Cfg.flip = 1
 Cfg.blur = 0
 Cfg.gaussian = 0
 Cfg.boxes = 60  # box num
-Cfg.TRAIN_EPOCHS = 300
-Cfg.train_label = 'data/train.txt'
-Cfg.val_label = 'data/val.txt'
+Cfg.TRAIN_EPOCHS = 60
+Cfg.train_label = 'data/data/train.txt'
+Cfg.val_label = 'data/valid.txt'
 Cfg.TRAIN_OPTIMIZER = 'adam'
 '''
 image_path1 x1,y1,x2,y2,id x1,y1,x2,y2,id x1,y1,x2,y2,id ...
 image_path2 x1,y1,x2,y2,id x1,y1,x2,y2,id x1,y1,x2,y2,id ...
 ...
 '''
-
-if Cfg.mosaic and Cfg.cutmix:
-    Cfg.mixup = 4
-elif Cfg.cutmix:
-    Cfg.mixup = 2
-elif Cfg.mosaic:
-    Cfg.mixup = 3
-
+Cfg.mixup = 0
 Cfg.checkpoints = 'checkpoints'
 Cfg.TRAIN_TENSORBOARD_DIR = 'log'
